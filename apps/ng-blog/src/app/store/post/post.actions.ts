@@ -11,15 +11,3 @@ export const loadPostsSuccess = createAction(
 );
 
 export const loadPostsFailure = createAction('[Posts] Load Posts Failure');
-
-export const loadPost = createAction(
-  '[Posts] Load Post',
-  props<{ permalink: string}>()
-);
-
-export const loadPostSuccess = createAction(
-  '[Posts] Load Post Success',
-  props<{ post: Post }>()
-);
-
-export const loadPostFailure = createAction('[Posts] Load Post Failure');

@@ -28,25 +28,5 @@ export class PostEffects {
     );
   });
 
-  loadPost$ = createEffect(() => {
-    return this.actions$.pipe(
-
-      ofType(PostActions.loadPost),
-      withLatestFrom(this.postFacade.posts$),
-      concatMap(([action, posts]) =>{
-        const foundPost = posts.find(post => post.permalink === action.permalink);
-        if (foundPost) {
-          return of(PostActions.loadPostSuccess({ post: foundPost }))
-        } else {
-          return this.postService.loadPost(action.permalink).pipe(
-            map(response => PostActions.loadPostSuccess({ post: response })),
-            catchError(() => of(PostActions.loadPostFailure()))
-          )
-        }
-      })
-    );
-  });
-
-
   constructor(private actions$: Actions, private postService: PostService, private postFacade: PostFacade) {}
 }

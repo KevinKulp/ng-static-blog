@@ -1,12 +1,10 @@
 import { Injectable } from '@angular/core';
 import { Store } from '@ngrx/store';
-import { Observable } from 'rxjs';
-import { loadPosts, loadPost } from './post.actions';
+import { find, from, Observable, switchMap } from 'rxjs';
+import { loadPosts } from './post.actions';
 import type { Post } from '@ng-blog/domain';
 import { State } from './post.reducer';
 import {
-  selectPostError,
-  selectPostLoading,
   selectPosts,
   selectPostsError,
   selectPostsLoading
@@ -19,8 +17,6 @@ export class PostFacade {
   posts$: Observable<Post[]> = this.store.select(selectPosts);
   postsLoading$: Observable<boolean> = this.store.select(selectPostsLoading);
   postsError$: Observable<boolean> = this.store.select(selectPostsError);
-  postLoading$: Observable<boolean> = this.store.select(selectPostLoading);
-  postError$: Observable<boolean> = this.store.select(selectPostError);
 
   constructor(private store: Store<State>) {}
 
@@ -28,7 +24,7 @@ export class PostFacade {
     this.store.dispatch(loadPosts());
   }
 
-  loadPost(permalink: string): void {
-    this.store.dispatch(loadPost({ permalink }));
+  post$(permalink: string): Observable<Post> {
+    return this.posts$.pipe(switchMap(posts => from(posts)), find((post) => post.permalink === permalink));
   }
 }

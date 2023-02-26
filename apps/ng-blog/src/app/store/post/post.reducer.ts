@@ -38,34 +38,4 @@ export const reducer = createReducer(
     postsLoading: false,
     postsError: true,
   })),
-  on(PostActions.loadPost, (state) => ({
-    ...state,
-    postLoading: true,
-    postError: false,
-  })),
-  on(PostActions.loadPostSuccess, (state, action) => {
-    let updatedPosts;
-    const found = state.posts.find(post => post.permalink === action.post.permalink);
-
-    if (found) {
-      updatedPosts = state.posts.map(post => action.post.permalink === post.permalink ? action.post : post);
-    } else {
-      updatedPosts = [
-        ...state.posts,
-        action.post
-      ]
-    }
-
-
-    return {
-      ...state,
-        posts: updatedPosts,
-        postLoading: false,
-    }
-  }),
-  on(PostActions.loadPostFailure, (state) => ({
-    ...state,
-    postLoading: false,
-    postError: true,
-  })),
 );

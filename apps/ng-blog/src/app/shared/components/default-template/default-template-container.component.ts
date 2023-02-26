@@ -13,9 +13,9 @@ export class DefaultTemplateContainerComponent implements OnInit {
   constructor(public postFacade: PostFacade, public cdr: ChangeDetectorRef) { }
 
   ngOnInit(): void {
-    this.showSpinner$ = combineLatest([this.postFacade.postsLoading$, this.postFacade.postLoading$])
+    this.showSpinner$ = combineLatest([this.postFacade.postsLoading$])
       .pipe(
-        mergeMap(([posts, post]) => of(posts || post))
+        mergeMap(([posts]) => of(posts))
       );
 
     // trigger change detection to show/hide spinner

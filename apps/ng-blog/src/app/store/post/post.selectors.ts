@@ -19,13 +19,3 @@ export const selectPostsError = createSelector(
   selectPostState,
   (postState) => postState.postsError
 );
-
-export const selectPostLoading = createSelector(
-  selectPostState,
-  (postState) => postState.postLoading
-);
-
-export const selectPostError = createSelector(
-  selectPostState,
-  (postState) => postState.postError
-);

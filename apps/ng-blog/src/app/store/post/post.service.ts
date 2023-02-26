@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { mockPost } from '@ng-blog/domain';
-import { find, from, Observable, of, switchMap } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import type { Post } from '@ng-blog/domain';
 
 @Injectable({
@@ -9,13 +9,13 @@ import type { Post } from '@ng-blog/domain';
 })
 export class PostService {
   readonly posts: Post[] = [
-    mockPost(),
-    mockPost(),
-    mockPost(),
-    mockPost(),
-    mockPost(),
-    mockPost(),
-    mockPost(),
+    mockPost({ permalink: 'post-one' }),
+    mockPost({ permalink: 'post-two' }),
+    mockPost({ permalink: 'post-three' }),
+    mockPost({ permalink: 'post-four' }),
+    mockPost({ permalink: 'post-five' }),
+    mockPost({ permalink: 'post-six' }),
+    mockPost({ permalink: 'post-seven' }),
   ]
 
   constructor(private http: HttpClient) { }
@@ -23,14 +23,5 @@ export class PostService {
   loadPosts(): Observable<{ posts: Post[] }> {
     return of({ posts: this.posts });
     //return this.http.get<{ posts: [] }>('/api/post').pipe(delay(2000));
-  }
-
-  loadPost(permalink: string): Observable<Post> {
-    return of({ posts: this.posts })
-      .pipe(switchMap(
-        data => from(data.posts)),
-        find((post) => post.permalink === permalink)
-      );
-    //return this.http.get<Post>(`/api/post/${permalink}`).pipe(delay(2000));
   }
 }
