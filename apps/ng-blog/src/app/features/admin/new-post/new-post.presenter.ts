@@ -35,6 +35,9 @@ export class NewPostPresenter {
       case ContentType.CODE:
         this.postBody.insert(index, this.getNewCodeContent());
         break;
+      case ContentType.QUOTE:
+        this.postBody.insert(index, this.getNewQuoteContent());
+        break;
     }
   }
 
@@ -87,5 +90,12 @@ export class NewPostPresenter {
       type: new FormControl(ContentType.CODE),
       code: new FormControl(),
     });
+  }
+
+  getNewQuoteContent(): FormGroup {
+    return new FormGroup({
+      type: new FormControl(ContentType.QUOTE),
+      text: new FormControl(),
+    })
   }
 }

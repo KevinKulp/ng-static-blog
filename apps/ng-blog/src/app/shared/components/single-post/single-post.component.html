@@ -19,6 +19,7 @@
         <div *ngSwitchCase="ContentType.CODE" class="code-content">
           <p *ngFor="let line of getCodeContent(content).code; let i = index"><span class="code-line-number">{{ i+1 }}: </span>{{ line }}</p>
         </div>
+        <p *ngSwitchCase="ContentType.QUOTE" class="quote-content">{{ getQuoteContent(content).text }}</p>
       </ng-container>
     </ng-container>
   </ng-container>

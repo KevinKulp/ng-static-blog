@@ -8,6 +8,7 @@ import {
   getHeaderContent,
   getImageContent, getSubheaderContent,
   getTextContent,
+  getQuoteContent,
   Post
 } from '@ng-blog/domain';
 
@@ -27,6 +28,7 @@ export class SinglePostComponent implements OnChanges{
   getHeaderContent = getHeaderContent;
   getSubheaderContent = getSubheaderContent;
   getCodeContent = getCodeContent;
+  getQuoteContent = getQuoteContent;
 
   constructor(private viewportScroller: ViewportScroller, private route: ActivatedRoute) { }
 

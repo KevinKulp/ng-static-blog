@@ -1,6 +1,23 @@
 .new-post-container {
   margin-top: 20px;
 
+  .new-post-content-header {
+    display: flex;
+    justify-content: flex-end;
+
+    .content-type-label {
+      margin: 0;
+      font-size: .8rem;
+    }
+
+    .remove-button {
+      border: none;
+      background: none;
+      cursor: pointer;
+      font-size: .6rem;
+    }
+  }
+
   .hidden-input {
     border: none;
     width: 100%;
@@ -27,5 +44,36 @@
     resize: none;
     overflow: hidden;
     font-size: 1rem;
+  }
+
+  .new-post-content-footer-container .new-post-content-footer {
+    visibility: hidden;
+    opacity: 0;
+  }
+
+  .new-post-content-footer-container:hover .new-post-content-footer {
+    visibility: visible;
+    opacity: 1;
+  }
+
+  .new-post-content-footer {
+    display: flex;
+    justify-content: center;
+    border: 1px dashed gray;
+    padding: 20px;
+    transition: opacity .2s ease-in-out;
+
+    .new-content-select {
+      border: none;
+      cursor: pointer;
+      color: gray;
+    }
+
+    .new-content-button {
+      cursor: pointer;
+      background: none;
+      border: none;
+      color: gray;
+    }
   }
 }

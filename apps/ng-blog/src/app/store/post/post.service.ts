@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { mockPost } from '@ng-blog/domain';
-import { Observable, of } from 'rxjs';
+import { Observable, of, delay } from 'rxjs';
 import type { Post } from '@ng-blog/domain';
 
 @Injectable({
@@ -21,7 +21,7 @@ export class PostService {
   constructor(private http: HttpClient) { }
 
   loadPosts(): Observable<{ posts: Post[] }> {
-    return of({ posts: this.posts });
+    return of({ posts: this.posts }).pipe(delay(2000));
     //return this.http.get<{ posts: [] }>('/api/post').pipe(delay(2000));
   }
 }

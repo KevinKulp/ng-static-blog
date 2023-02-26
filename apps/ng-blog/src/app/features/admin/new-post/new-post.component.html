@@ -6,8 +6,10 @@
     <input type="text" class="hidden-input" formControlName="tags" placeholder="tag1, tag2, tag3" />
 
     <div *ngFor="let content of presenter.postBody.controls; let i = index" [formGroup]="presenter.getContentGroup(i)">
-      <p>Content {{ i + 1 }}</p>
-      <input type="button" value="Delete content" *ngIf="i !== 0" (click)="presenter.removeContent(i)" />
+      <div class="new-post-content-header">
+        <p class="content-type-label">{{ content.value.type | titlecase}}</p>
+        <input class="remove-button" type="button" value="X" *ngIf="i !== 0" (click)="presenter.removeContent(i)" />
+      </div>
       <ng-container [ngSwitch]="content.value.type">
         <div *ngSwitchCase="ContentType.TEXT">
           <textarea class="hidden-textarea" formControlName="text" placeholder="Text content" (keydown)="expandTextarea($event)">
@@ -30,17 +32,28 @@
           <textarea class="hidden-textarea" formControlName="code" placeholder="Text content" (keydown)="expandTextarea($event)">
           </textarea>
         </div>
+        <div *ngSwitchCase="ContentType.QUOTE">
+          <textarea class="hidden-textarea" formControlName="text" placeholder="Text content" (keydown)="expandTextarea($event)">
+          </textarea>
+        </div>
       </ng-container>
 
 
-      <select [formControl]="newContentControl">
-        <option [value]="ContentType.TEXT">Text</option>
-        <option [value]="ContentType.HEADER">Header</option>
-        <option [value]="ContentType.SUBHEADER">Subheader</option>
-        <option [value]="ContentType.IMAGE">Image</option>
-        <option [value]="ContentType.CODE">Code</option>
-      </select>
-      <input type="button" value="Add content" (click)="addContent(i + 1)" />
+      <div class="new-post-content-footer-container">
+        <div class="new-post-content-footer">
+          <select class="new-content-select" [formControl]="newContentControl">
+            <option [value]="ContentType.TEXT">Text</option>
+            <option [value]="ContentType.HEADER">Header</option>
+            <option [value]="ContentType.SUBHEADER">Subheader</option>
+            <option [value]="ContentType.IMAGE">Image</option>
+            <option [value]="ContentType.CODE">Code</option>
+            <option [value]="ContentType.QUOTE">Quote</option>
+          </select>
+          <input class="new-content-button" type="button" value="Insert" (click)="addContent(i + 1)" />
+        </div>
+      </div>
+
+
     </div>
   </div>
 </div>
