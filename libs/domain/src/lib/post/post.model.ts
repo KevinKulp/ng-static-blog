@@ -81,7 +81,13 @@ export const mockParagraph = (): string => {
 }
 
 export const mockSentence = (): string => {
-  const sentences = [''];
+  const sentences = [
+    'Nibh cras pulvinar mattis nunc sed blandit libero volutpat sed.',
+    'Orci phasellus egestas tellus rutrum tellus pellentesque.',
+    'Enim eu turpis egestas pretium aenean pharetra magna ac.',
+    'Viverra justo nec ultrices dui sapien eget mi.',
+    'Porttitor massa id neque aliquam.'
+  ];
 
   const randomNum = Math.floor(Math.random() * sentences.length);
 
@@ -124,7 +130,7 @@ export const mockCodeContent = (partial?: Partial<CodeContent>): CodeContent => 
 
 export const mockQuoteContent = (partial?: Partial<QuoteContent>): QuoteContent => ({
   type: ContentType.QUOTE,
-  text: 'This is an incredibly interesting quote.',
+  text: mockSentence(),
   ...partial
 })
 
