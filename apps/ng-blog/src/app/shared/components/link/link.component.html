@@ -1,3 +1,11 @@
-<a [routerLink]="internalLink" [href]="externalLink" class="app-link">
-  <ng-content></ng-content>
+<a *ngIf="internalLink" [routerLink]="internalLink" class="app-link">
+  <ng-container *ngTemplateOutlet="linkText"></ng-container>
 </a>
+
+<a *ngIf="externalLink" [href]="externalLink" target="_blank" class="app-link">
+  <ng-container *ngTemplateOutlet="linkText"></ng-container>
+</a>
+
+<ng-template #linkText>
+  <ng-content></ng-content>
+</ng-template>
