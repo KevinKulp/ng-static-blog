@@ -1,12 +1,9 @@
-.default-footer-text {
-  float: right;
+.default-footer-container {
+  display: flex;
+  justify-content: space-between;
 
-  a {
-    color: #03a9f4;
+  .hidden-admin-link {
+    opacity: 0;
     text-decoration: none;
-
-    &:hover {
-      text-decoration: underline;
-    }
   }
 }
