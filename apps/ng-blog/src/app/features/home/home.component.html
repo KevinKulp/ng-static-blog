@@ -3,7 +3,7 @@
   <br/>
 </ng-container>
 <br/>
-<div class="pagination">
+<div class="pagination" *ngIf="pageNumbers.length > 1">
   <app-link internalLink="/page/{{ page - 1 }}" *ngIf="page > 1">Previous</app-link>
   <ng-container *ngFor="let pageNumber of pageNumbers">
     <app-link internalLink="/page/{{ pageNumber }}" *ngIf="pageNumber !== page && pageNumber !== -1">{{ pageNumber }}</app-link>
