@@ -16,12 +16,15 @@ export class PostService {
     mockPost({ permalink: 'post-five' }),
     mockPost({ permalink: 'post-six' }),
     mockPost({ permalink: 'post-seven' }),
+    mockPost({ permalink: 'post-eight' }),
+    mockPost({ permalink: 'post-nine' }),
+    mockPost({ permalink: 'post-ten' }),
   ]
 
   constructor(private http: HttpClient) { }
 
   loadPosts(): Observable<{ posts: Post[] }> {
-    return of({ posts: this.posts }).pipe(delay(2000));
-    //return this.http.get<{ posts: [] }>('/api/post').pipe(delay(2000));
+    //return of({ posts: this.posts }).pipe(delay(2000));
+    return this.http.get<{ posts: [] }>('/assets/posts.json').pipe(delay(2000));
   }
 }
