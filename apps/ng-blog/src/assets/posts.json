@@ -1,6 +1,1187 @@
 {
   "posts": [
     {
+      "title": "How to remember the difference between ng-container and ng-content",
+      "permalink": "remember-the-difference-between-ng-container-and-ng-content",
+      "date": "2021-06-30T16:00:00.000Z",
+      "tags": [
+        "angular"
+      ],
+      "body": [
+        {
+          "type": "TEXT",
+          "text": "Although Angular’s ng-container and ng-content structural directives have vastly different use cases, it can be difficult to remember which to use by name. By leveraging the differences between the two directives, you can remember which directive to use."
+        },
+        {
+          "type": "SUBHEADER",
+          "text": "ng-container",
+          "permalink": "ng-container"
+        },
+        {
+          "type": "TEXT",
+          "text": "In Angular, only a single structural directive can be applied to each element. This can result in unnecessarily nested div and span elements."
+        },
+        {
+          "type": "CODE",
+          "code": [
+            "<p *ngFor=\"let user of users\">",
+            "  <span *ngIf=\"!user.deleted\">",
+            "    {{ user.name }}",
+            "  </span>",
+            "</p>"
+          ]
+        },
+        {
+          "type": "TEXT",
+          "text": "One way to address this is to use Angular’s ng-container directive. If you consider a container in the real world, you aren’t concerned with the container itself but rather the content contained within it. Angular’s ng-container directive works the same way. When ng-container is used, it serves solely to attach another structural directive to (for example, *ngIf) and essentially dissolves."
+        },
+        {
+          "type": "CODE",
+          "code": [
+            "<p *ngFor=\"let user of users\">",
+            "  <ng-container *ngIf=\"!user.deleted\">",
+            "    {{ user.name }}",
+            "  </ng-container>",
+            "</p>"
+          ]
+        },
+        {
+          "type": "TEXT",
+          "text": "While the first block of code would result in a span nested within a paragraph, using ng-container results in a single paragraph for each element in the array. To remember Angular’s ng-container directive, consider the significance of a container in the real world. A container serves the contents within it, and nothing more."
+        },
+        {
+          "type": "SUBHEADER",
+          "text": "ng-content",
+          "permalink": "ng-content"
+        },
+        {
+          "type": "TEXT",
+          "text": "The use case for ng-content is vastly different from Angular’s ng-container directive and, although powerful, not as frequently used. While ng-container serves to wrap its contents with an additional directive, ng-content is used by custom components to project content internally. Consider a custom card component. Some cards may container a header, image, and paragraph while other cards may just contain a header and paragraph. A custom card component can accept these elements and render them using Angular’s ng-content directive."
+        },
+        {
+          "type": "CODE",
+          "code": [
+            "<custom-card>",
+            " <h3>Excellent vacation spot!</h3>\t",
+            " <p>10/10 would recommend to friends.</p>\t",
+            "</custom-card>",
+            "",
+            "<custom-card>\t",
+            " <h3>Horrible experience!</h3>\t",
+            " <img src=\"https://kevinkulp.com/image.png\"/>",
+            " <p>The place was trashed, will not be staying here again!</p>\t",
+            "</custom-card>"
+          ]
+        },
+        {
+          "type": "TEXT",
+          "text": "When we use the custom card component, projecting content within is as simple as wrapping it within the element’s selector tags. The ng-content directive comes into play within the custom component’s template."
+        },
+        {
+          "type": "TEXT",
+          "text": "custom-card.component.html"
+        },
+        {
+          "type": "CODE",
+          "code": [
+            "<div style=\"border: 1px solid black\">",
+            " <ng-content></ng-content>",
+            "</div>"
+          ]
+        },
+        {
+          "type": "TEXT",
+          "text": "Angular’s ng-content directive leverages something called content projection to render the element’s content. Although the ng-content element dissolves, like ng-container, it serves to project content as opposed to acting as a temporary container."
+        }
+      ]
+    },
+    {
+      "title": "Simple Data Storage for an Angular + Electron Application",
+      "permalink": "simple-data-storage-for-an-angular-electron-application",
+      "date": "2020-07-21T16:00:00.000Z",
+      "tags": [
+        "angular",
+        "electron",
+        "node",
+        "storage"
+      ],
+      "body": [
+        {
+          "type": "TEXT",
+          "text": "Electron is an open source framework that enables developers to use frameworks that are traditionally used for web development to build desktop applications. Storing application data on a user’s local machine requires using Electron’s IPC (inter-process communication) modules. Electron exposes two IPC modules, one for the renderer process, being Angular in this scenario, and the second being for the main process, the Electron application."
+        },
+        {
+          "type": "TEXT",
+          "text": "A simple way to store application data is by saving it as JSON in the user’s APPDATA directory. Each piece of an application’s state can be stored in a separate [e].json[/e] file allowing it to be easily saved and reloaded. For illustrative purposes, a single application may maintain the following files:"
+        },
+        {
+          "type": "TEXT",
+          "text": "<ul><li>settings.json</li><li>calendar.json</li><li>todos.json</li></ul>"
+        },
+        {
+          "type": "HEADER",
+          "text": "Angular ElectronService",
+          "permalink": "angular-electron-service"
+        },
+        {
+          "type": "TEXT",
+          "text": "Since modern applications generally involve multiple core services where each service is responsible for a different piece of state, it is a good idea to separate all Angular → Electron communication into its own service. The [e]ElectronService[/e] can then be injected into all other core services to expose various IPC interactions."
+        },
+        {
+          "type": "TEXT",
+          "text": "Below is the template we will build on to implement IPC interactions. By providing this service in the root, it creates a singleton service that other core services will share when injected. All that this template handles is storing a reference to Electron’s IPC renderer module. There are different ways you could architect IPC communication but for the purpose of this post the [e]ipcRenderer[/e] is made private and will only be exposed functionally by public methods."
+        },
+        {
+          "type": "CODE",
+          "code": [
+            "import { Injectable } from '@angular/core';",
+            "import { ipcRenderer } from 'electron';",
+            "",
+            "@Injectable({",
+            "  providedIn: 'root'",
+            "})",
+            "export class ElectronService {",
+            "  private ipcRenderer: typeof ipcRenderer;",
+            "",
+            "  constructor() {",
+            "    // Only available if running in electron",
+            "    if (this.isElectron()) {",
+            "      this.ipcRenderer = (window).require('electron').ipcRenderer;",
+            "    }",
+            "  }",
+            "",
+            "  private isElectron(): boolean {",
+            "    return !!((window) && (window).process && (window).process.type);",
+            "  }",
+            "",
+            "}"
+          ]
+        },
+        {
+          "type": "SUBHEADER",
+          "text": "IPC Renderer Invoke",
+          "permalink": "ipc-renderer-invoke"
+        },
+        {
+          "type": "TEXT",
+          "text": "Now that we have a singleton service with a reference to the [e]ipcRenderer[/e] module, we need to expose IPC functionality to injecting services. One methods that Electron’s ipcRenderer module exposes is [e]invoke[/e]."
+        },
+        {
+          "type": "CODE",
+          "code": [
+            "ipcRenderer.invoke(channel, …args);",
+            "channel : string",
+            "...args : any[]"
+          ]
+        },
+        {
+          "type": "TEXT",
+          "text": "Source: [a=https://www.electronjs.org/docs/api/ipc-renderer]https://www.electronjs.org/docs/api/ipc-renderer[/a]"
+        },
+        {
+          "type": "TEXT",
+          "text": "Invoke returns a promise, allowing for asynchronous communication between the renderer and main processes. Any string value can be provided as the channel name, so long as the main process is listening on the same channel. Channels allow for IPC functionally to be broken into different pieces. There might be a channel for loading data, a separate channel for updating data, etc.. A simple pattern would involve implementing a public [e]loadData[/e] method in the [e]ElectronService[/e]."
+        },
+        {
+          "type": "CODE",
+          "code": [
+            "public loadData(jsonFileName: string): Promise {",
+            "  return this.ipcRenderer.invoke('loadData', jsonFileName);",
+            "}"
+          ]
+        },
+        {
+          "type": "TEXT",
+          "text": "This method could certainly be extended to implement error handling, logging, etc. centrally in the [e]ElectronService[/e]. In addition to loading data, we will also implement a method to save data. This method is virtually identical, except that it will communicate on a separate channel and passes data through as an argument."
+        },
+        {
+          "type": "CODE",
+          "code": [
+            "public saveData(jsonFileName: string, data: any): Promise {",
+            "  return this.ipcRenderer.invoke('saveData', jsonFileName, data);",
+            "}"
+          ]
+        },
+        {
+          "type": "SUBHEADER",
+          "text": "Angular TodoService",
+          "permalink": "angular-todo-service"
+        },
+        {
+          "type": "TEXT",
+          "text": "With methods to load and save data, we are ready to create our first core service that will depend on the [e]ElectronService[/e]. Below is a [e]TodoService[/e] that implements a simple pattern to expose an observable containing an array of todos. In a more complex application the store may follow a redux pattern, but let's keep it simple here!"
+        },
+        {
+          "type": "CODE",
+          "code": [
+            "import { Injectable } from '@angular/core';",
+            "import { ElectronService } from '../electron/electron.service';",
+            "import { Observable, BehaviorSubject } from 'rxjs';",
+            "import { ITodo } from './todo.model';",
+            "",
+            "@Injectable({",
+            "providedIn: 'root'",
+            "})",
+            "export class TodoService {",
+            "  readonly EMPTY_STATE = [];",
+            "",
+            "  // subject and observable for activity history",
+            "  private _todos: BehaviorSubject = new BehaviorSubject(this.EMPTY_STATE);",
+            "  todos$: Observable;",
+            "",
+            "  constructor(private electronService: ElectronService) {",
+            "    this.todos$ = this._todos.asObservable();",
+            "  }",
+            "}"
+          ]
+        },
+        {
+          "type": "SUBHEADER",
+          "text": "Load Todos",
+          "permalink": "load-todos"
+        },
+        {
+          "type": "TEXT",
+          "text": "With the basic service complete, we are ready to implement [e]loadTodos[/e] which calls [e]loadData[/e] on the [e]ElectronService[/e] and reacts accordingly. We will see later that the main process may return a null response. For this reason, we are checking that the response is truthy, and if so, notifying observers of the new value. In the case that we receive a falsy response, we set the value of todos equal to the configured empty state value. For some services, this may be an object, others an array, etc.. This method is made private with the understanding that the service will be responsible for initially fetching and keeping its data up to date. "
+        },
+        {
+          "type": "CODE",
+          "code": [
+            "private loadTodos() {",
+            "  this.electronService.loadData('todos').then((todos) => {",
+            "    if(todos) {",
+            "      this._todos.next(result);",
+            "    } else {",
+            "      this._todos.next(this.EMPTY_STATE);",
+            "    }",
+            "  });",
+            "}"
+          ]
+        },
+        {
+          "type": "TEXT",
+          "text": "With [e]loadTodos[/e] implemented, we will want to invoke this from the constructor to ensure that when the service is constructed, it proactively fetches relevant state."
+        },
+        {
+          "type": "CODE",
+          "code": [
+            "constructor(private electronService: ElectronService) {",
+            "  this.todos$ = this._todos.asObservable();",
+            "",
+            "  this.loadTodos();",
+            "}"
+          ]
+        },
+        {
+          "type": "SUBHEADER",
+          "text": "Save Todos",
+          "permalink": "save-todos"
+        },
+        {
+          "type": "TEXT",
+          "text": "[e]TodoService[/e] is now ready to be injected, but first lets implement the ability to save new todos. To accomplish this we will add another private method to our service and use ElectronService's [e]saveData[/e] method. A simple way to ensure that state is up to date is by immediately reloading state when changes are made by calling [e]loadTodos[/e]. Quick improvements could be made to make the main and renderer processes less chatty but is most cases this won’t be a constraint and relying on the same load method allows for any built in data mapping or error handling to be maintained by the load method."
+        },
+        {
+          "type": "CODE",
+          "code": [
+            "private saveTodos(updatedTodos: ITodo[]) {",
+            "  this.electronService.saveData('todos', updatedTodos).then((result) => {",
+            "    this.loadTodos();",
+            "  });",
+            "}"
+          ]
+        },
+        {
+          "type": "SUBHEADER",
+          "text": "Add Todo",
+          "permalink": "add-todo"
+        },
+        {
+          "type": "TEXT",
+          "text": "Although we have implemented a method to save todos, it is currently private meaning it will not be available in injected components. The reason for this is that the service should be responsible for manipulating state when changes are made. To expose this functionality to injected components we can add a public [e]addTodo[/e] method."
+        },
+        {
+          "type": "CODE",
+          "code": [
+            "private addTodo(newTodo: ITodo) {",
+            "  let updatedTodos = this._todos.getValue();",
+            "",
+            "  updatedTodos.push(newTodo);",
+            "",
+            "  this.saveTodos(updatedTodos);",
+            "}"
+          ]
+        },
+        {
+          "type": "TEXT",
+          "text": "In this scenario it may seem overboard to separate the logic to add a todo into its own method rather than allowing a component to directly call saveTodos with an updated array of todos. In some cases, however, there may be more logic involved. Consider implementing data validation when a todo is added, or a delete method that iterates over an array of todos and finds the todo with a particular id. Breaking this logic into public methods ensures that all injected components interact with state in the same way, and also ensures that changes to state only take place from the appropriate service. This makes your core much easier to update and expand on in the future."
+        },
+        {
+          "type": "HEADER",
+          "text": "Electron IPC Handlers",
+          "permalink": "electron-ipc-handlers"
+        },
+        {
+          "type": "TEXT",
+          "text": "We have written a reusable [e]ElectronService[/e] and consumed it in a sample [e]TodoService[/e]. At this point we are done with the renderer process and ready to move to Electron. Before we begin to implement the IPC pieces on the main process, ensure that [e]noteIntegration[/e] and [e]enableRemoteModule[/e] are enabled when your window is created."
+        },
+        {
+          "type": "CODE",
+          "code": [
+            "win = new BrowserWindow({",
+            "  width: 775,",
+            "  height: 650,",
+            "  webPreferences: {",
+            "    nodeIntegration: true,",
+            "    enableRemoteModule: true",
+            "  }",
+            "});"
+          ]
+        },
+        {
+          "type": "TEXT",
+          "text": "Electron’s [e]ipcMain[/e] module exposes a method named [e]handle[/e] which specifically handles invoke requests from the renderer process."
+        },
+        {
+          "type": "CODE",
+          "code": [
+            "ipcMain.handle(channel, listener);",
+            "channel : string",
+            "listener : Function<Promise | any>",
+            "– event : IpcMainInvokeEvent",
+            "– ...args : any[]"
+          ]
+        },
+        {
+          "type": "TEXT",
+          "text": "Source: [a=https://www.electronjs.org/docs/api/ipc-main]https://www.electronjs.org/docs/api/ipc-main[/a]"
+        },
+        {
+          "type": "TEXT",
+          "text": "In our [e]ElectronService[/e] we managed IPC on two channels: [e]loadData[/e] and [e]saveData[/e]. In Electron’s main js file we can handle these two request types. Let’s start with loading data."
+        },
+        {
+          "type": "CODE",
+          "code": [
+            "ipcMain.handle('loadData', async (event, fileName) => {",
+            "  const userDataPath = app.getPath('userData');",
+            "  this.path = path.join(userDataPath, `${fileName}.json`);",
+            "",
+            "  fs.writeFileSync(this.path, '', { flag: 'a' });",
+            "",
+            "  const data = fs.readFileSync(this.path);",
+            "",
+            "  return data.length > 0? JSON.parse(data) : null;",
+            "});"
+          ]
+        },
+        {
+          "type": "TEXT",
+          "text": "Electron’s [e]getPath[/e] method allows access to special directories like the local machine’s app data which can vary by user and OS. A full filename could potentially be passed from the renderer process but in the spirit of separation of control, just the data key is being passed; in our example this was simply todos. If you decide later to combine some pieces of state into a single file, you could handle that here. With .json appended we have a full path to the data file. There are a couple ways you could proceed, but I chose to use [e]writeFileSync[/e] to ‘append’ nothing. This essentially ensures that the file exists, and if it doesn’t, it creates the file. With the file guaranteed to exist, we can call [e]readFileSync[/e] to read the content of the file. If there is content, it will expect that it is valid JSON and parse it. If there is no content in the file it will simply return null. There is certainly more error handling (try/catch) that could be implemented and other ways that an empty file could be handled, but I believe this is a simple solution that can be easily expanded on. With [e]loadData[/e] complete, we’re ready to implement [e]saveData[/e]."
+        },
+        {
+          "type": "CODE",
+          "code": [
+            "ipcMain.handle('saveData', async (event, fileName, data) => {",
+            "  const userDataPath = app.getPath('userData');",
+            "  this.path = path.join(userDataPath, `${fileName}.json`);",
+            "",
+            "  fs.writeFileSync(this.path, JSON.stringify(data));",
+            "",
+            "  return 'OK';",
+            "});"
+          ]
+        },
+        {
+          "type": "TEXT",
+          "text": "After using the same pattern as before to get the data file path, we simply stringify the data and write it to the file. Since the append flag is not provided, this will actually overwrite the contents of the file. This is why whenever data (state) changed in the Angular service, we passed over the entire updated state. There is an opportunity here to enhance the error handling and response to potentially pass back the current data in the file, or provide some sort of response detailing the status of the save request. How you choose to expand on this would depend on your particular scenario and what changes you decide to make to the pattern I’ve described here."
+        }
+      ]
+    },
+    {
+      "title": "How to Write Snort Rule Headers",
+      "permalink": null,
+      "date": "2020-01-12T17:00:00.000Z",
+      "tags": [
+        "routing",
+        "snort rules"
+      ],
+      "body": [
+        {
+          "type": "TEXT",
+          "text": "A snort rule is composed of two parts: the header and its options. The header matches packets and the options serve to filter and perform actions on those matches."
+        },
+        {
+          "type": "SUBHEADER",
+          "text": "Snort Rule Header",
+          "permalink": "snort-rule-header"
+        },
+        {
+          "type": "TEXT",
+          "text": "The rule header contains the basic rule matching criteria with the following format."
+        },
+        {
+          "type": "TEXT",
+          "text": "[e]rule_action protocol source_ip source_port -> destination_ip destination_port[/e]"
+        },
+        {
+          "type": "TEXT",
+          "text": "Each of these fields can have a number of values and operators can be used to create fairly robust patterns."
+        },
+        {
+          "type": "TEXT",
+          "text": "rule_action"
+        },
+        {
+          "type": "TEXT",
+          "text": "<ul><li>alert – creates an alert and then logs the packet</li><li>log – logs the packet</li><li>pass – ignores the packet</li><li>activate – creates an alert and then turns on the dynamic rule specified in the options</li><li>dynamic – idle until activated</li><li>drop – blocks the packet and then logs it</li><li>sdrop – blocks the packet but doesn’t log the packet</li><li>reject – blocks the packet, logs the packet, and then sends a connection reset message if applicable</li></ul>"
+        },
+        {
+          "type": "TEXT",
+          "text": "protocol"
+        },
+        {
+          "type": "TEXT",
+          "text": "<ul><li>any</li><li>tcp</li><li>udp</li><li>icmp</li><li>ip</li></ul>"
+        },
+        {
+          "type": "TEXT",
+          "text": "source_ip / destination_ip"
+        },
+        {
+          "type": "TEXT",
+          "text": "<ul><li>any</li><li>IP address with CIDR, e.g. 10.0.0.0/24</li><li>exact IP address, e.g. 10.0.0.1</li><li>negation operator for other IP address, e.g. !10.0.0.1</li><li>a list of IP addresses, e.g. [10.0.1.0/24,10.0.2.1,!10.0.1.1]</li></ul>"
+        },
+        {
+          "type": "TEXT",
+          "text": "source_port / destination_port"
+        },
+        {
+          "type": "TEXT",
+          "text": "<ul><li>any</li><li>exact port, e.g. 80</li><li>port range, e.g. 1:80</li><li>ports greater than or equal to a specific port, e.g. 80:</li><li>ports less than or equal to a specific port, e.g. :80</li><li>negation operator for any other port, e.g. !80</li><li>a list of ports, e.g. [80,100:200, !150,1000:]</li></ul>"
+        },
+        {
+          "type": "SUBHEADER",
+          "text": "Notes",
+          "permalink": "notes"
+        },
+        {
+          "type": "TEXT",
+          "text": "<ul><li>This was prepared using Snort version 2.9.7.0</li><li>If you receive errors with ip or port lists, make sure you remove all spaces</li></ul>"
+        }
+      ]
+    },
+    {
+      "title": "What are JavaScript Polyfills?",
+      "permalink": "what-are-js-polyfills",
+      "date": "2019-07-03T16:00:00.000Z",
+      "tags": [
+        "angular.compatibility",
+        "javascript",
+        "polyfills",
+        "typescript"
+      ],
+      "body": [
+        {
+          "type": "TEXT",
+          "text": "Front end frameworks like Angular and React rely on transpiled JavaScript code to be interpreted by a client’s browser. If you have developed client facing, front end applications, chances are you have seen bugs isolated to a particular browser. Polyfills enable developers to use newer JavaScript features that aren’t supported by older browsers."
+        },
+        {
+          "type": "SUBHEADER",
+          "text": "Compatibility Issues",
+          "permalink": "compatibility-issues"
+        },
+        {
+          "type": "TEXT",
+          "text": "With each release of JavaScript comes new features that make it more powerful and cleaner to write. When a site is loaded it is the browser’s responsibility to interpret client side JavaScript. If the visitor is using an older browser, it may not support some of the newer JavaScript features. Since developers can’t rely on visitors to keep their browsers up to date, something called polyfills are imported. Polyfills act as a fallback when the browser doesn’t support a particular feature.\n\nInternet Explorer 11 does not support ES6. If your application uses constants, arrow functions, or any of the other features introduced by ES6, an IE11 visitor will have issues using your application. With appropriate polyfills an IE11 user’s experience will be similar to Chrome or Safari."
+        },
+        {
+          "type": "SUBHEADER",
+          "text": "Transpiliers",
+          "permalink": "transpilers"
+        },
+        {
+          "type": "TEXT",
+          "text": "If you are using TypeScript you should be familiar with transpilers. Transpilers, like Babel, will first transform syntactical constructs to older JavaScript formats. Using a transpiler can help fill the gap between older versions of JavaScript, but generally this isn’t enough. Popular transpilers will apply polyfills for newer functions after transpiling to an older version. If you are transpiling, chances are you are already applying polyfills, or at least have the option to easily do so.\n\nIt is important to understand that polyfills are not perfect. There are certain features and combinations that simply won’t work as expected on older browsers and will inevitably require creative maneuvering to curtail the user’s experience."
+        }
+      ]
+    },
+    {
+      "title": "Express.js Cheat Sheet",
+      "permalink": "express-js-cheat-sheet",
+      "date": "2018-03-31T16:00:00.000Z",
+      "tags": [
+        "express",
+        "javascript",
+        "node"
+      ],
+      "body": [
+        {
+          "type": "TEXT",
+          "text": "Express.js helps abstract the complexities of web services and its Router allows us to modularize our endpoints. This cheat sheet demonstrates how to use Express’s Router for basic RESTful request handling. This is not intended to be a deep dive into writing web services but instead something that can be referenced when learning Express or getting started on a new project. For more in depth study check out the [a=https://expressjs.com/]official Express documentation[/a]."
+        },
+        {
+          "type": "SUBHEADER",
+          "text": "Boilerplate Code",
+          "permalink": "boilerplate-code"
+        },
+        {
+          "type": "TEXT",
+          "text": "We will be working with two files: server.js and users.service.js. By modularizing our web service with express’s Router we are able to maintain a fairly basic server.js and break down the logic of our api into more manageable modules."
+        },
+        {
+          "type": "TEXT",
+          "text": "server.js"
+        },
+        {
+          "type": "CODE",
+          "code": [
+            "//Packages",
+            "var express = require('express');",
+            "var app = express();",
+            "var router = express.Router();",
+            "",
+            "//Require the module for our endpoint",
+            "var users = require('./routes/users.service');",
+            "",
+            "//Set up the '/users' web service endpoint",
+            "app.use('/users', users);",
+            "",
+            "//Set the server port value",
+            "app.set('port', 8080);",
+            "",
+            "//Start listening on the configured port",
+            "app.listen(app.get('port'), function() {",
+            " console.log('Express server listening on port ' + app.get('port'));",
+            "});"
+          ]
+        },
+        {
+          "type": "TEXT",
+          "text": "Note that I have included an external package in the users service below named [e]http-status-codes[/e]. This package is not required but I find it useful to have named HTTP status codes. A list of HTTP status codes and their descriptions can be found on [a=https://en.wikipedia.org/wiki/List_of_HTTP_status_codes]Wikipedia[/a]. You will need to install [a=https://www.npmjs.com/package/http-status-codes]this package[/a] for it to be available. At this point we’re ready to add routes to the user service."
+        },
+        {
+          "type": "TEXT",
+          "text": "users.service.js"
+        },
+        {
+          "type": "CODE",
+          "code": [
+            "//Packages",
+            "var express = require('express');",
+            "var router = express.Router();",
+            "var HttpStatus = require('http-status-codes');",
+            "",
+            "//Your endpoints will be configured here",
+            "",
+            "//Makes these configurations available when imported",
+            "module.exports = router;"
+          ]
+        },
+        {
+          "type": "TEXT",
+          "text": "At this point we’re ready to add routes to the user service."
+        },
+        {
+          "type": "SUBHEADER",
+          "text": "GET Request",
+          "permalink": "get-request"
+        },
+        {
+          "type": "TEXT",
+          "text": "The GET HTTP request method should be used for retrieving data from your service. Below is the most basic GET endpoint you can write. In this example I’m using the HttpStatus package to send back an OK HTTP status code of 200. In addition to the status code we also send a response body which in this example is the string value Request received. Remember that in our server.js we described the users service as having the endpoint /users. This means that in order to use the endpoint below a request would need to be made to [e]http://localhost:8080/users/[/e]."
+        },
+        {
+          "type": "TEXT",
+          "text": "users.service.js"
+        },
+        {
+          "type": "CODE",
+          "code": [
+            "//Your endpoints will be configured here",
+            "router.get('/', function(req, res){",
+            " res.status(HttpStatus.OK).send('Request received.');",
+            "});"
+          ]
+        },
+        {
+          "type": "TEXT",
+          "text": "As opposed to other HTTP request methods we will look at, GET endpoints should only accept request parameters through the path. In practice, a GET request with input parameters will look something like [e]http://localhost:8080/users/kevinkulp[/e]. With just a couple minor changes we can support path parameters in our service."
+        },
+        {
+          "type": "TEXT",
+          "text": "users.service.js"
+        },
+        {
+          "type": "CODE",
+          "code": [
+            "//Your endpoints will be configured here",
+            "router.get('/:user_id', function(req, res){",
+            " var user_id = req.params.user_id;",
+            " res.status(HttpStatus.OK).send('Request received for ' + user_id);",
+            "});"
+          ]
+        },
+        {
+          "type": "TEXT",
+          "text": "I want to point out that it is completely legitimate to support both of the endpoints described above: /users and /users/:user_id since each GET endpoint has a unique path."
+        },
+        {
+          "type": "SUBHEADER",
+          "text": "DELETE Request",
+          "permalink": "delete-request"
+        },
+        {
+          "type": "TEXT",
+          "text": "There are a number of other HTTP methods but I’m going to demonstrate one more, DELETE. Handling another HTTP method is as easy as changing the route function used. Unlike GET methods, DELETE endpoints should accept any inputs in a request body."
+        },
+        {
+          "type": "TEXT",
+          "text": "users.service.js"
+        },
+        {
+          "type": "CODE",
+          "code": [
+            "router.delete('/', function(req, res){",
+            " var user_id = req.body.user_id;",
+            "",
+            " res.status(HttpStatus.ACCEPTED).send(user_id);",
+            "});"
+          ]
+        },
+        {
+          "type": "SUBHEADER",
+          "text": "Input Validation",
+          "permalink": "input-validation"
+        },
+        {
+          "type": "TEXT",
+          "text": "In addition to modularizing our web service, another benefit of using Express’s Router is that it allows us to perform validation on input parameters that are used by multiple endpoints. This can be useful for sanitizing and decoding user input."
+        },
+        {
+          "type": "TEXT",
+          "text": "users.service.js"
+        },
+        {
+          "type": "CODE",
+          "code": [
+            "//Perform validations on input",
+            "router.param('user_id', function(req, res, next, user_id) {",
+            " console.log('Performing validations on ' + user_id);",
+            "",
+            " //We can decode the input and update",
+            " req.user_id = decodeURI(user_id).trim();",
+            "",
+            " console.log('Validated '+ user_id);",
+            "",
+            " //Allow the request to continue",
+            " next();",
+            "});"
+          ]
+        },
+        {
+          "type": "SUBHEADER",
+          "text": "Catch All",
+          "permalink": "catch-all"
+        },
+        {
+          "type": "TEXT",
+          "text": "There are many reasons you might want a catch-all whether it be to perform logging or to authenticate the user. Depending on the location of the catch-all you can regulate which endpoints require authorization. Another way we can control the endpoints that trigger our catch-all is by updating the path used below from [e]*[/e] to something like [e]/admin/*[/e]."
+        },
+        {
+          "type": "TEXT",
+          "text": "users.service.js"
+        },
+        {
+          "type": "CODE",
+          "code": [
+            "//Catch all",
+            "router.all('*', function(req, res, next){",
+            " console.log('Performing authorization');",
+            "",
+            " //Authorize and set value",
+            " var authorized = true;",
+            "",
+            " if(authorized === false)",
+            "  res.status(HttpStatus.UNAUTHORIZED).send(HttpStatus.getStatusText(HttpStatus.UNAUTHORIZED));",
+            " else",
+            "  next();",
+            "});"
+          ]
+        }
+      ]
+    },
+    {
+      "title": "5 Atom Text Editor Tips",
+      "permalink": "5-atom-tips",
+      "date": "2018-01-18T17:00:00.000Z",
+      "tags": [
+        "atom",
+        "github",
+        "development environment",
+        "node"
+      ],
+      "body": [
+        {
+          "type": "TEXT",
+          "text": "Atom is a lightweight, hackable, open source text editor that runs on Electron. Atom was developed by GitHub and originally released in 2015. My favorite thing about Atom is that out of the box it is highly lightweight in the features that it implements. Atom does not inherently implement many of the features you see in most IDEs, but instead relies on developers to take advantage of the open source community. There are thousands of packages that you can install to implement features as you need them. In this article I’m going to briefly mention five Atom text editor tips including shortcuts and useful packages."
+        },
+        {
+          "type": "SUBHEADER",
+          "text": "5. Use Shortcuts",
+          "permalink": "user-shortcuts"
+        },
+        {
+          "type": "TEXT",
+          "text": "Atom exposes a lot of shortcuts so these are just a couple that will make your life easier. If you’re already used to using different keybindings you can easily customize them and find more by going to File > Settings > Keybindings.\n\n<ul><li>Commenting and uncommenting code is something I do a lot. Luckily, Atom provides an easy to remember shortcut: [e]ctrl + /[/e]. In the keybindings tab this command goes by the name editor:toggle-line-comments.</li>\n<li>Changing tabs is equally useful using [e]ctrl + pageup[/e] and [e]ctrl + pagedown[/e]. These commands go by the names pane:show-next-item and pane:show-previous-item. Coincidentally these happen to be the same keybindings that Chrome uses for changing tabs.</li></ul>"
+        },
+        {
+          "type": "SUBHEADER",
+          "text": "4. File Type Icons",
+          "permalink": "file-type-icons"
+        },
+        {
+          "type": "TEXT",
+          "text": "For me, icons are more than just pretty colors. Colored icons make it easier to quickly identify a file I’m looking for and cut down on eye strain. There are dozens of packages whose sole purpose is to improve file type visibility but you really only need one and that’s [e]file-icons[/e]. With over four million downloads, file-icons provides hundreds of icons that really cover every imaginable extension."
+        },
+        {
+          "type": "SUBHEADER",
+          "text": "3. Pending Panes",
+          "permalink": "pending-panes"
+        },
+        {
+          "type": "TEXT",
+          "text": "If you’re like me, you've found yourself opening a handful of files before finding the one with the block of code you were looking for. Great, you've found the code, but now you have to close those extra tabs you opened. Atom has a handy built in feature to help with this called pending panes. With pending panes enabled, if you click on a file once it will open that file in a pending pane. Clicking on another file will replace the file you originally clicked on. This means that you can quickly shuffle through a dozen files and you don't have to worry about the mess you’re leaving behind. To toggle this feature you can go to File > Settings > Core and you’ll find the option Allow Pending Pane Items."
+        },
+        {
+          "type": "SUBHEADER",
+          "text": "2. Collaborate with Teletype",
+          "permalink": "collaborate-with-teletype"
+        },
+        {
+          "type": "TEXT",
+          "text": "If you work in a team you're likely used to a teammate looking over your shoulder or sharing your screen. With teletype you can interactively share your editor with other developers who can synchronously contribute."
+        },
+        {
+          "type": "SUBHEADER",
+          "text": "1. Built-in Terminal",
+          "permalink": "built-in-terminal"
+        },
+        {
+          "type": "TEXT",
+          "text": "If you're using Atom for development, it’s likely that you’re writing in a language that requires you to switch between your code and a terminal. Whether you’re restarting your application, pushing to git, or installing a new dependency, switching windows is tedious. Luckily some developers have already felt this pain and have shared a package named [e]platformio-ide-terminal[/e]. Like Atom itself, the terminal can be easily customized using CSS. To take it a step further you can open multiple terminals, name them, color code them, and even toggle between them automatically depending on which file you have open."
+        }
+      ]
+    },
+    {
+      "title": "How to Setup an Existing Maven Project in Eclipse",
+      "permalink": "setup-maven-project-in-eclipse",
+      "date": "2018-01-16T17:00:00.000Z",
+      "tags": [
+        "java",
+        "eclipse",
+        "maven",
+        "m2e"
+      ],
+      "body": [
+        {
+          "type": "TEXT",
+          "text": "At this point you've setup Maven locally and cloned a project from Git, but Eclipse is complaining that you are missing your dependencies. For Eclipse to retrieve the dependencies, you need to let it know that the project relies on Maven. In this article we will setup an existing maven project in Eclipse. There are two main reasons why these steps might be necessary: either the previous developers used a different IDE, or they simply didn't commit the [e].project[/e] file."
+        },
+        {
+          "type": "SUBHEADER",
+          "text": "Verify you have Maven",
+          "permalink": "verify-maven"
+        },
+        {
+          "type": "TEXT",
+          "text": "If you aren't sure if you have maven setup on your machine, open up a command prompt and run the following command. If this command isn't recognized, you’re going to want to follow the steps to [a=https://www.kevinkulp.com/how-to-setup-maven-on-windows]setup Maven locally[/a]."
+        },
+        {
+          "type": "CODE",
+          "code": [
+            "mvn -v"
+          ]
+        },
+        {
+          "type": "SUBHEADER",
+          "text": "Install the Plugin",
+          "permalink": "install-plugin"
+        },
+        {
+          "type": "TEXT",
+          "text": "If you haven't used Maven in Eclipse before, you're going to need to install a plugin. To do this go to Help > Eclipse Marketplace. Filter using m2e and install [e]Maven Integration for Eclipse[/e]."
+        },
+        {
+          "type": "SUBHEADER",
+          "text": "Convert the Project",
+          "permalink": "convert-project"
+        },
+        {
+          "type": "TEXT",
+          "text": "The last step involves 'converting' your project to use Maven. While the project may have a pom.xml with Maven configurations, Eclipse won't automatically use it without you explicitly converting it. To do this, right click your project and go to Configure > Convert to Maven Project. At this point Eclipse will begin pulling down the dependencies from your pom.xml. After the project is rebuilt, the errors that were showing on each of the imports should disappear. One last thing you can try is cleaning the project which triggers a full rebuild."
+        }
+      ]
+    },
+    {
+      "title": "Add Hash Links without a Plugin",
+      "permalink": "add-hash-links",
+      "date": "2018-01-14T17:00:00.000Z",
+      "tags": [
+        "html",
+        "anchor",
+        "link",
+        "wordpress",
+        "permalinks"
+      ],
+      "body": [
+        {
+          "type": "TEXT",
+          "text": "Hash links are great because they make it easy for readers to link others to a specific section of a page or article. Hash links also make it possible to add a table of contents if you have a particularly long post. This guide will show you how to add these hash links without having to install a plugin. These steps will work on any blog platform as long as you have access to icons, and the ability to edit both a post’s HTML and your website’s CSS. If you’re using WordPress, the HTML for a post can be modified by switching over to the Text tab when writing a post. The CSS can be modified by using the Customize feature from your dashboard. For an example of what we will be building, hover over and click any of the section headers in this post. Although this site is no longer using Wordpress, the core of it remains the same."
+        },
+        {
+          "type": "SUBHEADER",
+          "text": "Add the Id",
+          "permalink": "add-id"
+        },
+        {
+          "type": "TEXT",
+          "text": "The first step is to add the id to the section you want to let users link to. Consider you use the pre-defined Heading 5 element. In this case, you're going to want to make the markup look something like this. You are also going to want to make sure that these ids are unique within the post."
+        },
+        {
+          "type": "CODE",
+          "code": [
+            "<h5 id=\"my-section\">My Section</h5>"
+          ]
+        },
+        {
+          "type": "SUBHEADER",
+          "text": "Add the Link",
+          "permalink": "add-link"
+        },
+        {
+          "type": "TEXT",
+          "text": "For users to link others to the new id, you’re going to need to expose the path to them. A common way to do this is to make the header actually link to itself. This is a common model that people are already comfortable with. To do this all we have to do is wrap the inner text of our header with an anchor tag. At this point your header should look like this:"
+        },
+        {
+          "type": "CODE",
+          "code": [
+            "<h5 id=\"my-section\">",
+            "  <a href=\"#my-section\">My Section</a>",
+            "</h5>"
+          ]
+        },
+        {
+          "type": "SUBHEADER",
+          "text": "Add the Icon",
+          "permalink": "add-icon"
+        },
+        {
+          "type": "TEXT",
+          "text": "We now have a working hash link, but to make it more obvious we’re going to add a link icon. Many themes ship with an icon package already integrated but if yours does not you could consider using the [e]#[/e] symbol. I'm going to demonstrate this step using Font Awesome since it’s free and, well, awesome. All we’re going to do here is add an icon element and a single space before the section name. After this step we're left with something like:"
+        },
+        {
+          "type": "CODE",
+          "code": [
+            "<h5 id=\"my-section\">",
+            "  <a href=\"#my-section\">",
+            "    <i class=\"fa fa-link\" aria-hidden=\"true\"></i> My Section",
+            "  </a>",
+            "</h5>"
+          ]
+        },
+        {
+          "type": "SUBHEADER",
+          "text": "Peek-a-boo Styles",
+          "permalink": "link-styles"
+        },
+        {
+          "type": "TEXT",
+          "text": "If you're happy with the way this looks, you can stop here, but I decided I wanted this icon to be hidden unless the user hovered over the header. To do this we will need to modify our header and icon to add a couple CSS classes that we can reference. I decided to name these ref-link and ref-link-icon:"
+        },
+        {
+          "type": "CODE",
+          "code": [
+            "<h5 class=\"ref-link\" id=\"my-section\">",
+            "  <a href=\"#my-section\">",
+            "    <i class=\"fa fa-link ref-link-icon\" aria-hidden=\"true\"></i> My Section",
+            "  </a>",
+            "</h5>"
+          ]
+        },
+        {
+          "type": "TEXT",
+          "text": "Next, we’re going to add the definitions for these classes to our CSS."
+        },
+        {
+          "type": "CODE",
+          "code": [
+            "/*Move headers to the left so the header text aligns*/",
+            ".ref-link {",
+            " position: relative;",
+            " left: -24px;",
+            "}",
+            "/*Make icon transparent by default*/",
+            ".ref-link-icon {",
+            " opacity: 0;",
+            "}",
+            "/*Make icon visible on hover*/",
+            ".ref-link:hover .ref-link-icon{",
+            " opacity: 1;",
+            "}"
+          ]
+        },
+        {
+          "type": "TEXT",
+          "text": "At this point, after saving the CSS, the icon should be invisible until the header is hovered over, at which point the icon should appear to the left of the header. Depending on your text size and the icon package you are using you may need to adjust the left pixel value for .ref-link."
+        },
+        {
+          "type": "SUBHEADER",
+          "text": "Override Anchor Styles",
+          "permalink": "override-anchor-styles"
+        },
+        {
+          "type": "TEXT",
+          "text": "Most themes will automatically style links to make them more obvious. While this is nice, I didn't want these headers to look like links without interacting with them. I added the following styles to my CSS to override this behavior."
+        },
+        {
+          "type": "CODE",
+          "code": [
+            "/*Don't style href links in posts.*/",
+            "a.ref-link {",
+            " background: none;",
+            " color: black;",
+            "}",
+            "a.ref-link:hover {",
+            " color: black;",
+            "}",
+            "a.ref-link:focus {",
+            " color: black;",
+            "}"
+          ]
+        },
+        {
+          "type": "TEXT",
+          "text": "The styles you will need here will depend entirely on the styles that your theme imposes on links. It is likely you will need to set the color property to the default color (in my case that would be black) and the text-decoration property to none to remove underlining."
+        },
+        {
+          "type": "SUBHEADER",
+          "text": "Extra",
+          "permalink": "extra"
+        },
+        {
+          "type": "TEXT",
+          "text": "To take this one step further I moved some styles around for mobile users. A user on a mobile or tablet device, doesn't 'hover' like they would on a computer. While the headers would still work if tapped on, a user probably wouldn’t know that feature exists. To fix this I made the ‘peek-a-boo’ styles above only apply to larger screen sizes. Below is all of the CSS from this post along with these changes."
+        },
+        {
+          "type": "CODE",
+          "code": [
+            "/*Don't style href links in posts.*/",
+            "a.ref-link:hover {",
+            "  color: black;",
+            "}",
+            "a.ref-link:focus {",
+            "  color: black;",
+            "}",
+            "a.ref-link {",
+            "  background: none;",
+            "  color: black;",
+            "}",
+            "",
+            "/*Only apply peek-a-boo for larger screens*/",
+            "@media screen and (min-width: 800px) {",
+            "",
+            "  /*Make icon transparent on default*/",
+            "  .ref-link-icon {",
+            "    opacity: 0;",
+            "  }",
+            "",
+            "  /*Make icon visible on hover*/ ",
+            "  .ref-link:hover .ref-link-icon{ ",
+            "    opacity: 1; ",
+            "  }",
+            "  /*Slide over headers for transparent icon*/",
+            "  .ref-link {",
+            "    position: relative;",
+            "    left: -24px;",
+            "  }",
+            "}"
+          ]
+        }
+      ]
+    },
+    {
+      "title": "How to Generate Scaffolding with Angular’s CLI",
+      "permalink": "how-to-generate-scaffolding-with-angular-cli",
+      "date": "2018-01-14T17:00:00.000Z",
+      "tags": [
+        "angular",
+        "angularcli",
+        "cli",
+        "typescript",
+        "node"
+      ],
+      "body": [
+        {
+          "type": "TEXT",
+          "text": "As a follow up to [a=https://kevinkulp.com/how-to-create-angular-app]creating a new angular application[/a], this post highlights one of the most useful features of Angular’s CLI: the generate command. By using the generate command we can quickly generate components and services to quickstart development."
+        },
+        {
+          "type": "SUBHEADER",
+          "text": "What is Scaffolding",
+          "permalink": "what-is-scaffolding"
+        },
+        {
+          "type": "TEXT",
+          "text": "Scaffolding provides bare, skeleton files that you can implement. The number and types of files generated will depend on the type of scaffolding you are generating."
+        },
+        {
+          "type": "SUBHEADER",
+          "text": "Types of Scaffolding",
+          "permalink": "types-of-scaffolding"
+        },
+        {
+          "type": "TEXT",
+          "text": "<table><tr><th>Type</th><th>Command</th></tr>\n<tr><td>Component</td><td>ng generate component my-component</td></tr>\n<tr><td>Directive</td><td>ng generate directive my-directive</td></tr>\n<tr><td>Pipe</td><td>ng generate pipe my-pipe</td></tr>\n<tr><td>Service</td><td>ng generate service my-service</td></tr>\n<tr><td>Module</td><td>ng generate module my-module</td></tr>\n</table>"
+        },
+        {
+          "type": "SUBHEADER",
+          "text": "Generating Scaffolding",
+          "permalink": "generating-scaffolding"
+        },
+        {
+          "type": "TEXT",
+          "text": "To see exactly what the generate command does, we’re going to use the [e]‑‑dry-run[/e] flag. In these examples, I ran the generate command from [e]src/app[/e]. It is important to know that when we generate scaffolding, it creates the new files in your current directory."
+        },
+        {
+          "type": "CODE",
+          "code": [
+            "> ng generate component test --dry-run",
+            "",
+            "create src/app/test/test.component.spec.ts (614 bytes)",
+            "create src/app/test/test.component.ts (261 bytes)",
+            "create src/app/test/test.component.css (0 bytes)",
+            "update src/app/app.module.ts (464 bytes)"
+          ]
+        },
+        {
+          "type": "TEXT",
+          "text": "You may see different results depending on the type of scaffolding you are generating. If you are generating a component or module, it will create a directory with the name you provide. The new files will then be the created within the new directory."
+        },
+        {
+          "type": "CODE",
+          "code": [
+            "> ng generate class test --dry-run",
+            "",
+            "create src/app/test.ts (22 bytes)"
+          ]
+        },
+        {
+          "type": "TEXT",
+          "text": "For some types of scaffolding the CLI will generate a single typescript file. While getting comfortable with Angular’s CLI, it’s a good idea to use [e]‑‑dry-run[/e] to see the files that will be created and modified."
+        },
+        {
+          "type": "SUBHEADER",
+          "text": "Removing Generated Files",
+          "permalink": "remove-scaffolding"
+        },
+        {
+          "type": "TEXT",
+          "text": "Angular’s CLI does not currently implement an undo operation. If you decide you no longer need the generated files, you will have to remove them manually. When we ran the generate component command we saw the files that were created and updated. By removing the files it generated along with any references to those files in the module, we can revert the generation. Keep in mind that components, directives, and pipes are the three types of scaffolding that will update your app’s module."
+        }
+      ]
+    },
+    {
+      "title": "How to Create a New Angular Application",
+      "permalink": "how-to-create-angular-app",
+      "date": "2018-01-13T17:00:00.000Z",
+      "tags": [
+        "angular",
+        "angularcli",
+        "typescript",
+        "node",
+        "npm"
+      ],
+      "body": [
+        {
+          "type": "TEXT",
+          "text": "For this demonstration we will be using Angular’s CLI (command line interface) to create a new angular application. By using the CLI we can quickly generate the starter files and basic file structure of an Angular application."
+        },
+        {
+          "type": "SUBHEADER",
+          "text": "Prerequisites",
+          "permalink": "prereqs"
+        },
+        {
+          "type": "TEXT",
+          "text": "First you’re going to need to install node, which comes prepackaged with npm (node package manager). You can find the installer on their [a=https://nodejs.org/en]official website[/a]. Npm is the tool you’ll be using to acquire useful libraries that other developers have shared, including the Angular CLI. Once node and npm have been setup you can install Angular’s CLI through npm. Open up a command prompt and run the following command. This will install the cli globally, giving you access to the cli commands from any directory."
+        },
+        {
+          "type": "CODE",
+          "code": [
+            "npm install --global @angular/cli"
+          ]
+        },
+        {
+          "type": "SUBHEADER",
+          "text": "Project Generation",
+          "permalink": "cli-generation"
+        },
+        {
+          "type": "TEXT",
+          "text": "At this point we’re ready to actually create a new angular application. In a command prompt, navigate to the directory where you intend to develop your project."
+        },
+        {
+          "type": "CODE",
+          "code": [
+            "cd C:\\workspace"
+          ]
+        },
+        {
+          "type": "TEXT",
+          "text": "To generate the starter files and basic file structure of your application, you’re going to use Angular CLI’s new command. This will create a folder in the current directory with the name you provide. It will then generate the starter files as well as install a number of dependencies to get you started."
+        },
+        {
+          "type": "CODE",
+          "code": [
+            "ng new my-project-name"
+          ]
+        },
+        {
+          "type": "TEXT",
+          "text": "After a few minutes it should finish the file generation and dependency installation. If you move into the newly generated folder you will find a number of files and child directories."
+        },
+        {
+          "type": "SUBHEADER",
+          "text": "Project Composition",
+          "permalink": "project-comp"
+        },
+        {
+          "type": "TEXT",
+          "text": "Angular’s CLI generates many files and if you open up the generated package.json you’ll see the default dependencies that the CLI installed. Under dependencies we can see all of the production dependencies. At generation this includes core packages which you will need for Angular development and deployment. Under devDependencies you’ll find a number of additional packages. Here we can see that it has already included Karma and Jasmine, two frameworks that are often used for testing Angular applications. Some of the other dependencies you’ll see include various packages used for compiling typescript and building the application. Each of these dependencies in turn have dependencies of their own. If you open up the node_modules directory, which houses all of the dependencies for your application, you’ll find upwards of 700 modules that total to over 250 megabytes."
+        },
+        {
+          "type": "SUBHEADER",
+          "text": "Run your Project",
+          "permalink": "run-project"
+        },
+        {
+          "type": "TEXT",
+          "text": "To run the newly generated project locally simply execute the following command from inside the project's directory directory."
+        },
+        {
+          "type": "CODE",
+          "code": [
+            "ng serve"
+          ]
+        },
+        {
+          "type": "TEXT",
+          "text": "After a couple minutes it should provide output that directs you to visit [e]http://localhost:4200[/e]. If you open up your browser to your localhost you’ll find the boilerplate home page with a number of links to help get you started. You can find information about the other commands the cli provides on [a=https://angular.io/cli]their official website[/a]."
+        }
+      ]
+    },
+    {
       "title": "How to Setup Maven on Windows",
       "permalink": "how-to-setup-maven-on-windows",
       "date": "2018-01-17T17:00:00.000Z",
@@ -74,9 +1255,7 @@
             "Java version: 1.x.x, vendor: Oracle Corporation",
             "Java home: C:\\Your Directory\\Java\\jre1.x.x",
             "Default locale: en_US, platform encoding: Cp1252",
-            "OS name: \"windows 10\", version: \"10.0\", arch: \"amd64\", family: \"windows\"",
-            "Posts navigation",
-            "Newer Post "
+            "OS name: \"windows 10\", version: \"10.0\", arch: \"amd64\", family: \"windows\""
           ]
         }
       ]
